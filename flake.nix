@@ -19,13 +19,23 @@
           ./configuration.nix
         ];
       };
-      iso = inputs.nixpkgs.lib.nixosSystem {
+      tfc-iso = inputs.nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         specialArgs = {
           targetSystem = inputs.self.nixosConfigurations.tfc;
         };
         modules = [
           ./iso.nix
+        ];
+      };
+      linescan = inputs.nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        specialArgs = {
+          inherit (inputs) tfc-packages;
+        };
+        modules = [
+          inputs.disko.nixosModules.disko
+          ./linescan.nix
         ];
       };
     };

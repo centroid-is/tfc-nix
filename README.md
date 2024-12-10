@@ -1,7 +1,9 @@
 ## Build the ISO image
 
 ```bash
-nix build -L .#nixosConfigurations.iso.config.system.build.isoImage
+# nix build -L .#nixosConfigurations.<name of config to use>.config.system.build.isoImage
+nix build -L .#nixosConfigurations.tfc-iso.config.system.build.isoImage
+GITHUB_TOKEN=<your token> nix build -L .#nixosConfigurations.linescan-iso.config.system.build.isoImage --impure
 ls -l ./result/iso
 ````
 
