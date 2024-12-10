@@ -37,7 +37,7 @@ let
       DISKO_DEVICE_MAIN=''${DEVICE_MAIN#"/dev/"} ${targetSystem.config.system.build.diskoScript} 2> /dev/null
 
       echo "Copying configuration files..."
-      find / -name "configuration.nix"
+      find / -name "base-configuration.nix"
       ls -alh /iso/nixos
       mkdir -p /mnt/etc/nixos/
       cp -r /iso/nixos/* /mnt/etc/nixos/
@@ -87,13 +87,16 @@ in
     packages = [ pkgs.terminus_font ];
   };
 
+  # BIG TODO hostname is not the correct mechanism to propagate filename
   isoImage.isoName = "${targetSystem.config.networking.hostName}-${config.isoImage.isoBaseName}-${config.system.nixos.label}-${pkgs.stdenv.hostPlatform.system}.iso";
   isoImage.makeEfiBootable = true;
   isoImage.makeUsbBootable = true;
   isoImage.squashfsCompression = "zstd -Xcompression-level 15"; # xz takes forever
   # ONE important note, the files root location is /iso, not /
   isoImage.contents = [
-    { source = ./configuration.nix; target = "/nixos/configuration.nix"; }
+    # BIG TODO hostname is not the correct mechanism to propagate filename
+    { source = ./${targetSystem.config.networking.hostName}.nix; target = "/nixos/configuration.nix"; }
+    { source = ./base-configuration.nix; target = "/nixos/base-configuration.nix"; }
     { source = ./disko.nix;         target = "/nixos/disko.nix"; }
     { source = ./flake.nix;         target = "/nixos/flake.nix"; }
     { source = ./flake.lock;        target = "/nixos/flake.lock"; }

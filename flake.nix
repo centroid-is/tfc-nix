@@ -4,7 +4,7 @@
   inputs.disko.url = "github:nix-community/disko/master";
   inputs.disko.inputs.nixpkgs.follows = "nixpkgs";
 
-  inputs.tfc-packages.url = "github:centroid-is/flakes?ref=add-model";
+  inputs.tfc-packages.url = "github:centroid-is/flakes?ref=v2024.12.4";
 
   outputs = inputs: let
     # Helper function to create QEMU test script
@@ -38,9 +38,10 @@
           -drive if=pflash,format=raw,unit=0,readonly=on,file=${pkgs.OVMF.firmware} \
           -drive id=usbdisk,if=none,readonly=on,file="$(echo ${inputs.self.nixosConfigurations.${isoConfig}.config.system.build.isoImage}/iso/*.iso)" \
           -netdev user,id=net0,hostfwd=tcp::2222-:22 \
-          -device virtio-net-pci,netdev=net0 \
-          -vnc :0
+          -device virtio-net-pci,netdev=net0 
+          # -vnc :0
       '';
+      # VNC SUPPORT, ENABLE IF NEEDED
     };
   in {
     nixosConfigurations = {
@@ -52,7 +53,7 @@
         };
         modules = [
           inputs.disko.nixosModules.disko
-          ./configuration.nix
+          ./base-configuration.nix
         ];
       };
       tfc-iso = inputs.nixpkgs.lib.nixosSystem {
