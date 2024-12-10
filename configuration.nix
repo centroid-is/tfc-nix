@@ -249,7 +249,7 @@
     wantedBy = [ "default.target" ];
   };
 
-  # systemd.services.weston.enable = true;
+  systemd.services.weston.enable = false; # override from explicit configuration like linescan.nix
 
   security.pam.services."weston-autologin".text = ''
     auth       include    login
