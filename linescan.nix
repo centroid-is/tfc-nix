@@ -4,7 +4,10 @@
   # Import the base configuration
   imports = [ 
     ./configuration.nix 
+    tfc-packages.nixosModules.linescan-model
+    tfc-packages.nixosModules.drangey
   ];
+  services.drangey.enable = true;
 
   # Please remember to declare hostname, it is used in the ISO name
   networking.hostName = lib.mkForce "linescan";
@@ -14,8 +17,7 @@
   
   environment.systemPackages = lib.mkMerge [
     (with pkgs; [
-        git
-        htop
+      tfc-packages.packages.x86_64-linux.drangey
     ])
   ];
 }
