@@ -8,7 +8,7 @@
   imports = [
     #(modulesPath + "/profiles/all-hardware.nix")
     ./disko.nix
-    ./intel.nix # CAN BE CHANGED TO amd.nix
+    # ./intel.nix # CAN BE CHANGED TO amd.nix
     # tfc-packages.nixosModules.tfc-hmi
   ];
   # services.tfc-hmi.enable = true;
