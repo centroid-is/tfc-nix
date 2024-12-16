@@ -4,7 +4,7 @@
   inputs.disko.url = "github:nix-community/disko/master";
   inputs.disko.inputs.nixpkgs.follows = "nixpkgs";
 
-  inputs.tfc-packages.url = "github:centroid-is/flakes?ref=v2024.12.5";
+  inputs.tfc-packages.url = "github:centroid-is/flakes?ref=2d9c4652aea4937eb2bf9deeaa3246692925a795";
 
   outputs = inputs: let
     # Helper function to create QEMU test script

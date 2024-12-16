@@ -9,7 +9,8 @@
   ];
   services.shrimp-batcher.enable = true;
   services.shrimp-batcher-hmi.enable = true;
-  
+  systemd.services.weston.enable = lib.mkForce true;
+
 
   # Please remember to declare hostname, it is used in the ISO name
   networking.hostName = lib.mkForce "shrimp-batcher";
