@@ -4,7 +4,7 @@
   inputs.disko.url = "github:nix-community/disko/master";
   inputs.disko.inputs.nixpkgs.follows = "nixpkgs";
 
-  inputs.tfc-packages.url = "github:centroid-is/flakes?ref=v2024.12.4";
+  inputs.tfc-packages.url = "github:centroid-is/flakes?ref=v2024.12.5";
 
   outputs = inputs: let
     # Helper function to create QEMU test script
@@ -79,6 +79,25 @@
         system = "x86_64-linux";
         specialArgs = {
           targetSystem = inputs.self.nixosConfigurations.linescan;
+        };
+        modules = [
+          ./iso.nix
+        ];
+      };
+      shrimp-batcher = inputs.nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        specialArgs = {
+          inherit (inputs) tfc-packages;
+        };
+        modules = [
+          inputs.disko.nixosModules.disko
+          ./shrimp-batcher.nix
+        ];
+      };
+      shrimp-batcher-iso = inputs.nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        specialArgs = {
+          targetSystem = inputs.self.nixosConfigurations.shrimp-batcher;
         };
         modules = [
           ./iso.nix

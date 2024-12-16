@@ -65,16 +65,16 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1733826670,
-        "narHash": "sha256-PaqDIhyJwmEC1p+/for20xYcQMPldpV9bKif3a8tku8=",
+        "lastModified": 1734360825,
+        "narHash": "sha256-nteYEj80ZuIOWfrjxq7QM0GkIWj1bPsgY7EhOTnguJE=",
         "owner": "centroid-is",
         "repo": "flakes",
-        "rev": "ddd1581f6620a1885ac2973d801c3ce3dba46e9a",
+        "rev": "2e430a05fee0f8f8b4aa28301de66177c59b9347",
         "type": "github"
       },
       "original": {
         "owner": "centroid-is",
-        "ref": "v2024.12.4",
+        "ref": "v2024.12.5",
         "repo": "flakes",
         "type": "github"
       }
