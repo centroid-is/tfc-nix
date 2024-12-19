@@ -100,6 +100,7 @@ in
     { source = ./disko.nix;         target = "/nixos/disko.nix"; }
     { source = ./flake.nix;         target = "/nixos/flake.nix"; }
     { source = ./flake.lock;        target = "/nixos/flake.lock"; }
+    { source = ./intel.nix;         target = "/nixos/intel.nix"; }
   ];
 
   systemd.services."getty@tty1" = {
