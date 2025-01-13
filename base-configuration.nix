@@ -96,6 +96,11 @@
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
   services.openssh.settings.PermitRootLogin = "yes";
+  services.openssh.settings.Macs = [
+    "hmac-sha2-512"
+    "hmac-sha2-256"
+    "umac-128@openssh.com"
+  ];
 
   # Automatically log in at the virtual consoles.
   services.getty.autologinUser = "tfc";
