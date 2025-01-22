@@ -4,6 +4,32 @@
 
 { config, lib, pkgs, modulesPath, tfc-packages, ... }:
 
+let
+  westonCerts = pkgs.stdenv.mkDerivation {
+    name = "weston-vnc-certs";
+    buildInputs = [ pkgs.openssl ];
+    
+    # No source needed as we're generating files
+    dontUnpack = true;
+
+    buildPhase = ''
+      mkdir -p $out/vnc/certs
+      openssl genrsa -out $out/vnc/certs/tls.key 2048
+      openssl req -new \
+        -key $out/vnc/certs/tls.key \
+        -out $out/vnc/certs/tls.csr \
+        -subj '/C=IS/ST=Höfuðborgar Svæðið/L=Reykjavik/O=Centroid'
+      openssl x509 -req \
+        -days 365000 \
+        -signkey $out/vnc/certs/tls.key \
+        -in $out/vnc/certs/tls.csr \
+        -out $out/vnc/certs/tls.crt
+    '';
+
+    # Skip unneeded phases
+    dontInstall = true;
+  };
+in
 {
   imports = [
     #(modulesPath + "/profiles/all-hardware.nix")
@@ -72,17 +98,15 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-    vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+    vim
     wget
     libinput
     seatd
     weston
     dbus
-    plymouth
     systemd
-    rustc
-    cargo
     bash-completion
+    openssl
   ];
 
   services.zerotierone = {
@@ -110,40 +134,12 @@
   # Allow VNC connections on port 5900
   networking.firewall.allowedTCPPorts = [ 22 5900 ];
 
-  systemd.services.create-keys = {
-    description = "Create TLS keys and certificates on startup";
-
-    # Only run the service if /var/tfc/certs/tls.crt does NOT exist
-    unitConfig.ConditionPathExists = "!/var/tfc/certs/tls.crt";
-
-    serviceConfig = {
-      Type = "oneshot";
-      User = "root";
-      Group = "root";
-
-      # Define the sequence of commands to execute
-      ExecStart = [
-        "mkdir -p /var/tfc/certs"
-        "/usr/bin/openssl genrsa -out /var/tfc/certs/tls.key 2048"
-        "/usr/bin/openssl req -new -key /var/tfc/certs/tls.key -out /var/tfc/certs/tls.csr -subj '/C=IS/ST=Höfuðborgar Svæðið/L=Reykjavik/O=Centroid'"
-        "/usr/bin/openssl x509 -req -days 365000 -signkey /var/tfc/certs/tls.key -in /var/tfc/certs/tls.csr -out /var/tfc/certs/tls.crt"
-        "chown -R tfc:users /var/tfc/"
-      ];
-    };
-
-    # Ensure the service is part of the graphical.target
-    wantedBy = [ "graphical.target" ];
-  };
-
-  # create the directory /etc/tfc during build
-  environment.etc."tfc".source = "/var/tfc";
-
-  # Add the weston.ini file to /etc/xdg/weston/weston.ini
+  
   environment.etc."xdg/weston/weston.ini".text = ''
     [core]
     modules=screen-share.so
     backend=drm
-    shell=kiosk-shell.so
+    shell=desktop-shell.so
     require-input=false
     idle-time=0
     renderer=gl
@@ -159,13 +155,16 @@
     startup-animation=none
     focus-animation=none
 
+    [input-method]
+    path=${pkgs.weston}/libexec/weston-keyboard
+
     [vnc]
     refresh-rate=60
-    # tls-key=/var/tfc/certs/tls.key
-    # tls-cert=/var/tfc/certs/tls.crt
+    # tls-key=${pkgs.weston}/vnc/certs/tls.key
+    # tls-cert=${pkgs.weston}/vnc/certs/tls.crt
 
     [screen-share]
-    command=weston --backend=vnc-backend.so --vnc-tls-cert=/var/tfc/certs/tls.crt --vnc-tls-key=/var/tfc/certs/tls.key --shell=kiosk-shell.so --no-config --debug
+    command=weston --backend=vnc-backend.so --vnc-tls-cert=${westonCerts}/vnc/certs/tls.crt --vnc-tls-key=${westonCerts}/vnc/certs/tls.key --shell=fullscreen-shell.so --no-config --debug
     start-on-startup=true
 
     [output]
@@ -259,6 +258,11 @@
   systemd.services.weston.enable = false; # override from explicit configuration like linescan.nix
 
   security.pam.services."weston-autologin".text = ''
+    auth       include    login
+    account    include    login
+    session    include    login
+  '';
+  security.pam.services."weston-remote-access".text = ''
     auth       include    login
     account    include    login
     session    include    login

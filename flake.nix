@@ -4,7 +4,7 @@
   inputs.disko.url = "github:nix-community/disko/master";
   inputs.disko.inputs.nixpkgs.follows = "nixpkgs";
 
-  inputs.tfc-packages.url = "github:centroid-is/flakes?ref=2d9c4652aea4937eb2bf9deeaa3246692925a795";
+  inputs.tfc-packages.url = "github:centroid-is/flakes?ref=d8024d2aae705579a019ee0b5599d8de972320c9";
 
   outputs = inputs: let
     # Helper function to create QEMU test script
@@ -37,9 +37,8 @@
           -drive file=$disk1,format=qcow2,if=none,id=nvm,cache=unsafe,werror=report \
           -drive if=pflash,format=raw,unit=0,readonly=on,file=${pkgs.OVMF.firmware} \
           -drive id=usbdisk,if=none,readonly=on,file="$(echo ${inputs.self.nixosConfigurations.${isoConfig}.config.system.build.isoImage}/iso/*.iso)" \
-          -netdev user,id=net0,hostfwd=tcp::2222-:22 \
+          -netdev user,id=net0,hostfwd=tcp::2222-:22,hostfwd=tcp::5900-:5900 \
           -device virtio-net-pci,netdev=net0 
-          # -vnc :0
       '';
       # VNC SUPPORT, ENABLE IF NEEDED
     };
@@ -60,25 +59,6 @@
         system = "x86_64-linux";
         specialArgs = {
           targetSystem = inputs.self.nixosConfigurations.tfc;
-        };
-        modules = [
-          ./iso.nix
-        ];
-      };
-      linescan = inputs.nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
-        specialArgs = {
-          inherit (inputs) tfc-packages;
-        };
-        modules = [
-          inputs.disko.nixosModules.disko
-          ./linescan.nix
-        ];
-      };
-      linescan-iso = inputs.nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
-        specialArgs = {
-          targetSystem = inputs.self.nixosConfigurations.linescan;
         };
         modules = [
           ./iso.nix
@@ -106,7 +86,7 @@
     };
     packages.x86_64-linux = {
       default = mkQemuTest "tfc";      # For testing TFC ISO
-      linescan = mkQemuTest "linescan"; # For testing Linescan ISO
+      shrimp-batcher = mkQemuTest "shrimp-batcher"; # For testing Shrimp Batcher ISO
     };
   };
 }

@@ -31,7 +31,7 @@ nix run -L .
 
 ```bash
 export GITHUB_TOKEN=<your token>
-nix run -L .#linescan --impure
+nix run -L .#shrimp-batcher --impure
 ```
 
 ## Building the ISO image

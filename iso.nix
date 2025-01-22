@@ -95,7 +95,7 @@ in
   # ONE important note, the files root location is /iso, not /
   isoImage.contents = [
     # BIG TODO hostname is not the correct mechanism to propagate filename
-    { source = ./${targetSystem.config.networking.hostName}.nix; target = "/nixos/configuration.nix"; }
+    { source = ./${targetSystem.config.networking.hostName}.nix; target = "/nixos/${targetSystem.config.networking.hostName}.nix"; }
     { source = ./base-configuration.nix; target = "/nixos/base-configuration.nix"; }
     { source = ./disko.nix;         target = "/nixos/disko.nix"; }
     { source = ./flake.nix;         target = "/nixos/flake.nix"; }
