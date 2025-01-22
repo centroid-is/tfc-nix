@@ -120,6 +120,7 @@ in
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
   services.openssh.settings.PermitRootLogin = "yes";
+  # The following MACs are required for the DBUS remote connection via ssh to work, see dbus and dartssh2 library.
   services.openssh.settings.Macs = [
     "hmac-sha2-512"
     "hmac-sha2-256"
