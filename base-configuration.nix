@@ -161,8 +161,6 @@ in
 
     [vnc]
     refresh-rate=60
-    # tls-key=${pkgs.weston}/vnc/certs/tls.key
-    # tls-cert=${pkgs.weston}/vnc/certs/tls.crt
 
     [screen-share]
     command=weston --backend=vnc-backend.so --vnc-tls-cert=${westonCerts}/vnc/certs/tls.crt --vnc-tls-key=${westonCerts}/vnc/certs/tls.key --shell=fullscreen-shell.so --no-config --debug
