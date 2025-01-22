@@ -254,7 +254,7 @@ in
     wantedBy = [ "default.target" ];
   };
 
-  systemd.services.weston.enable = false; # override from explicit configuration like linescan.nix
+  systemd.services.weston.enable = false; # override from explicit configuration like shrimp-batcher.nix
 
   security.pam.services."weston-autologin".text = ''
     auth       include    login
