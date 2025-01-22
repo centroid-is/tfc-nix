@@ -256,11 +256,13 @@ in
 
   systemd.services.weston.enable = false; # override from explicit configuration like shrimp-batcher.nix
 
+  # PAM config to allow weston to run
   security.pam.services."weston-autologin".text = ''
     auth       include    login
     account    include    login
     session    include    login
   '';
+  # PAM config to allow weston to authenticate via VNC
   security.pam.services."weston-remote-access".text = ''
     auth       include    login
     account    include    login
