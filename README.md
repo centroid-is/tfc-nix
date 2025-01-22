@@ -3,7 +3,7 @@
 ```bash
 # nix build -L .#nixosConfigurations.<name of config to use>.config.system.build.isoImage
 nix build -L .#nixosConfigurations.tfc-iso.config.system.build.isoImage
-GITHUB_TOKEN=<your token> nix build -L .#nixosConfigurations.linescan-iso.config.system.build.isoImage --impure
+GITHUB_TOKEN=<your token> nix build -L .#nixosConfigurations.shrimp-batcher-iso.config.system.build.isoImage --impure
 ls -l ./result/iso
 ````
 
@@ -38,5 +38,5 @@ nix run -L .#shrimp-batcher --impure
 
 ```bash
 export GITHUB_TOKEN=<your token>
-nix build -L .#nixosConfigurations.linescan-iso.config.system.build.isoImage --impure
+nix build -L .#nixosConfigurations.shrimp-batcher-iso.config.system.build.isoImage --impure
 ```
