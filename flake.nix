@@ -4,41 +4,22 @@
   inputs.disko.url = "github:nix-community/disko/master";
   inputs.disko.inputs.nixpkgs.follows = "nixpkgs";
 
-  inputs.tfc-packages.url = "github:centroid-is/flakes?ref=v2024.12.2";
+  inputs.tfc-packages.url = "github:centroid-is/flakes?ref=d8024d2aae705579a019ee0b5599d8de972320c9";
 
-  outputs = inputs: {
-    nixosConfigurations = {
-      tfc = inputs.nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
-        specialArgs = {
-          # Make tfc-packages available to configuration.nix
-          inherit (inputs) tfc-packages;
-        };
-        modules = [
-          inputs.disko.nixosModules.disko
-          ./configuration.nix
-        ];
-      };
-      iso = inputs.nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
-        specialArgs = {
-          targetSystem = inputs.self.nixosConfigurations.tfc;
-        };
-        modules = [
-          ./iso.nix
-        ];
-      };
-    };
-    packages.x86_64-linux.default = let
+  outputs = inputs: let
+    # Helper function to create QEMU test script
+    mkQemuTest = configName: let
       pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
+      # Get the ISO configuration name
+      isoConfig = "${configName}-iso";
     in pkgs.writeShellApplication {
-      name = "iso-test";
+      name = "${configName}-test";
       runtimeInputs = with pkgs; [
         qemu-utils
         qemu_kvm
       ];
       text = ''
-        disk1=disk1.qcow2
+        disk1=${configName}-disk.qcow2
         if [ ! -f $disk1 ]; then
           qemu-img create -f qcow2 $disk1 32G
         fi
@@ -55,11 +36,57 @@
           -device usb-storage,drive=usbdisk \
           -drive file=$disk1,format=qcow2,if=none,id=nvm,cache=unsafe,werror=report \
           -drive if=pflash,format=raw,unit=0,readonly=on,file=${pkgs.OVMF.firmware} \
-          -drive id=usbdisk,if=none,readonly=on,file="$(echo ${inputs.self.nixosConfigurations.iso.config.system.build.isoImage}/iso/*.iso)" \
-          -netdev user,id=net0,hostfwd=tcp::2222-:22 \
-          -device virtio-net-pci,netdev=net0 \
-          -vnc :0
+          -drive id=usbdisk,if=none,readonly=on,file="$(echo ${inputs.self.nixosConfigurations.${isoConfig}.config.system.build.isoImage}/iso/*.iso)" \
+          -netdev user,id=net0,hostfwd=tcp::2222-:22,hostfwd=tcp::5900-:5900 \
+          -device virtio-net-pci,netdev=net0 
       '';
+      # VNC SUPPORT, ENABLE IF NEEDED
+    };
+  in {
+    nixosConfigurations = {
+      tfc = inputs.nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        specialArgs = {
+          # Make tfc-packages available to configuration.nix
+          inherit (inputs) tfc-packages;
+        };
+        modules = [
+          inputs.disko.nixosModules.disko
+          ./base-configuration.nix
+        ];
+      };
+      tfc-iso = inputs.nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        specialArgs = {
+          targetSystem = inputs.self.nixosConfigurations.tfc;
+        };
+        modules = [
+          ./iso.nix
+        ];
+      };
+      shrimp-batcher = inputs.nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        specialArgs = {
+          inherit (inputs) tfc-packages;
+        };
+        modules = [
+          inputs.disko.nixosModules.disko
+          ./shrimp-batcher.nix
+        ];
+      };
+      shrimp-batcher-iso = inputs.nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        specialArgs = {
+          targetSystem = inputs.self.nixosConfigurations.shrimp-batcher;
+        };
+        modules = [
+          ./iso.nix
+        ];
+      };
+    };
+    packages.x86_64-linux = {
+      default = mkQemuTest "tfc";      # For testing TFC ISO
+      shrimp-batcher = mkQemuTest "shrimp-batcher"; # For testing Shrimp Batcher ISO
     };
   };
 }
