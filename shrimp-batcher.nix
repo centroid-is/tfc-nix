@@ -14,6 +14,12 @@
 
   # Please remember to declare hostname, it is used in the ISO name
   networking.hostName = lib.mkForce "shrimp-batcher";
+  networking.interfaces.enp2s0.ipv4.addresses = [
+    {
+      address = "172.17.10.41";
+      prefixLength = 24;
+    }
+  ];
   
 #   # Override or add settings
 #   users.users.tfc.password = "different-password";
