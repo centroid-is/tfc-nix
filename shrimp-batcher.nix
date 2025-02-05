@@ -20,6 +20,8 @@
       prefixLength = 24;
     }
   ];
+  networking.defaultGateway  = "172.17.10.1";
+  networking.nameservers  = [ "172.17.10.1" "8.8.8.8" ];
   
 #   # Override or add settings
 #   users.users.tfc.password = "different-password";
