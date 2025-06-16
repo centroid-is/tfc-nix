@@ -1,5 +1,5 @@
 {
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
 
   inputs.disko.url = "github:nix-community/disko/master";
   inputs.disko.inputs.nixpkgs.follows = "nixpkgs";
@@ -83,10 +83,25 @@
           ./iso.nix
         ];
       };
+      docker-host = inputs.nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        specialArgs = {
+          inherit (inputs) tfc-packages;
+        };
+        modules = [ ./docker-host.nix ];
+      };
+      docker-host-iso = inputs.nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        specialArgs = {
+          targetSystem = inputs.self.nixosConfigurations.docker-host;
+        };
+        modules = [ ./iso.nix ];
+      };
     };
     packages.x86_64-linux = {
       default = mkQemuTest "tfc";      # For testing TFC ISO
       shrimp-batcher = mkQemuTest "shrimp-batcher"; # For testing Shrimp Batcher ISO
+      docker-host = mkQemuTest "docker-host"; # For testing Docker Host ISO
     };
   };
 }
