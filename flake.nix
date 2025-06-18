@@ -88,7 +88,10 @@
         specialArgs = {
           inherit (inputs) tfc-packages;
         };
-        modules = [ ./docker-host.nix ];
+        modules = [
+          inputs.disko.nixosModules.disko
+          ./docker-host.nix
+        ];
       };
       docker-host-iso = inputs.nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
